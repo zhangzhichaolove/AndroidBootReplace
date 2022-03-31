@@ -1,10 +1,18 @@
+//go:generate go-bindata -o=./asset/bindata.go -pkg=asset data/...
+//go:generate go-bindata -fs -prefix "static/" data/...
+//go:generate go-bindata -version
+
 package main
 
 import (
 	"archive/zip"
 	"bufio"
 	"fmt"
+	assetFs "github.com/elazarl/go-bindata-assetfs"
+	asset "github.com/zhangzhichaolove/AndroidBootReplace/type"
+	//"github.com/zhangzhichaolove/AndroidBootReplace/asset"
 	"io"
+	"net/http"
 	"os"
 	"os/exec"
 	"strings"
@@ -12,9 +20,20 @@ import (
 	"time"
 )
 
+//go get -u github.com/go-bindata/go-bindata/...
+//go install github.com/go-bindata/go-bindata/...@latest
+//go install -a -v github.com/go-bindata/go-bindata/...@latest
 func main() {
-	//< waiting for any device >
-	//fastboot: usage: unknown command wait-for-device
+	restore()
+	fs := assetFs.AssetFS{
+		Asset:     asset.Asset,
+		AssetDir:  asset.AssetDir,
+		AssetInfo: asset.AssetInfo,
+	}
+	http.Handle("/", http.FileServer(&fs))
+	http.ListenAndServe(":12345", nil)
+	//data, _ := asset.Asset("data/adb")
+	//fmt.Println(data)
 	isConnect := make(chan bool)
 	go func() {
 		for {
@@ -32,6 +51,12 @@ func main() {
 	execRealTimeCommand("fastboot flash boot new.img")
 	execRealTimeCommand("fastboot reboot")
 	//execRealTimeCommand("ping www.baidu.com")
+}
+
+func restore() {
+	if err := asset.RestoreAssets(".", ""); err != nil {
+		fmt.Println("文件释放失败：", err.Error())
+	}
 }
 
 func execCommand(strCommand string, connect chan bool) string {
