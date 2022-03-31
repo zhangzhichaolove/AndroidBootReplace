@@ -1,5 +1,5 @@
-//go:generate go-bindata -o=./asset/bindata.go -pkg=asset data/...
-//go:generate go-bindata -fs -prefix "static/" data/...
+//go:generate go-bindata -o=./asset/bindata.go -pkg=asset tool/...
+////go:generate go-bindata -fs -prefix "static/" tool/...
 //go:generate go-bindata -version
 
 package main
@@ -20,21 +20,28 @@ import (
 	"time"
 )
 
+var imgName = "new.img"
+
 //go get -u github.com/go-bindata/go-bindata/...
 //go install github.com/go-bindata/go-bindata/...@latest
 //go install -a -v github.com/go-bindata/go-bindata/...@latest
 func main() {
 	restore()
-	fs := assetFs.AssetFS{
-		Asset:     asset.Asset,
-		AssetDir:  asset.AssetDir,
-		AssetInfo: asset.AssetInfo,
+	if len(os.Args) == 2 {
+		imgName = os.Args[1]
+	} else {
+		fmt.Println("默认会将同级目录下new.img替换到手机，你也可以手动指定该镜像名称，例如：./replaceBoot magisk_patched.img")
 	}
-	http.Handle("/", http.FileServer(&fs))
-	http.ListenAndServe(":12345", nil)
-	//data, _ := asset.Asset("data/adb")
-	//fmt.Println(data)
 	isConnect := make(chan bool)
+	go func() {
+		fs := assetFs.AssetFS{
+			Asset:     asset.Asset,
+			AssetDir:  asset.AssetDir,
+			AssetInfo: asset.AssetInfo,
+		}
+		http.Handle("/", http.FileServer(&fs))
+		http.ListenAndServe(":88", nil)
+	}()
 	go func() {
 		for {
 			select {
@@ -46,10 +53,10 @@ func main() {
 			time.Sleep(2 * time.Second)
 		}
 	}()
-	//execCommand("fastboot --version")
-	execCommand("fastboot wait-for-device", isConnect)
-	execRealTimeCommand("fastboot flash boot new.img")
-	execRealTimeCommand("fastboot reboot")
+	execRealTimeCommand("tool/fastboot --version")
+	execCommand("tool/fastboot wait-for-device", isConnect)
+	execRealTimeCommand(fmt.Sprintf("tool/fastboot flash boot %s", imgName))
+	execRealTimeCommand("tool/fastboot reboot")
 	//execRealTimeCommand("ping www.baidu.com")
 }
 
