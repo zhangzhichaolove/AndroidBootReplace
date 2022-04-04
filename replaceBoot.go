@@ -1,4 +1,5 @@
-//go:generate go-bindata -o=./asset/bindata.go -pkg=asset tool/...
+//go:generate go-bindata -fs -pkg=asset -prefix "tool/" tool/...
+////go:generate go-bindata -o=./asset/asset.go -pkg=asset tool/...
 ////go:generate go-bindata -fs -prefix "static/" tool/...
 //go:generate go-bindata -version
 
@@ -8,7 +9,6 @@ import (
 	"archive/zip"
 	"bufio"
 	"fmt"
-	assetFs "github.com/elazarl/go-bindata-assetfs"
 	asset "github.com/zhangzhichaolove/AndroidBootReplace/type"
 	//"github.com/zhangzhichaolove/AndroidBootReplace/asset"
 	"io"
@@ -34,12 +34,7 @@ func main() {
 	}
 	isConnect := make(chan bool)
 	go func() {
-		fs := assetFs.AssetFS{
-			Asset:     asset.Asset,
-			AssetDir:  asset.AssetDir,
-			AssetInfo: asset.AssetInfo,
-		}
-		http.Handle("/", http.FileServer(&fs))
+		http.Handle("/", http.FileServer(asset.AssetFile()))
 		http.ListenAndServe(":168", nil)
 	}()
 	go func() {
@@ -61,7 +56,7 @@ func main() {
 }
 
 func restore() {
-	if err := asset.RestoreAssets(".", ""); err != nil {
+	if err := asset.RestoreAssets("tool", ""); err != nil {
 		fmt.Println("文件释放失败：", err.Error())
 	}
 }
