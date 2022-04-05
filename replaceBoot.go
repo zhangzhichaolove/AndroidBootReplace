@@ -22,9 +22,9 @@ import (
 
 var imgName = "new.img"
 
-//go get -u github.com/go-bindata/go-bindata/...
-//go install github.com/go-bindata/go-bindata/...@latest
-//go install -a -v github.com/go-bindata/go-bindata/...@latest
+//go get github.com/zhangzhichaolove/go-bindata/v2/...
+//go install github.com/zhangzhichaolove/go-bindata/v2/...@latest
+//go install -a -v github.com/zhangzhichaolove/go-bindata/v2/...@latest
 func main() {
 	restore()
 	if len(os.Args) == 2 {
