@@ -6,11 +6,10 @@
 package main
 
 import (
-	"archive/zip"
 	"bufio"
 	"fmt"
-	asset "github.com/zhangzhichaolove/AndroidBootReplace/type"
-	//"github.com/zhangzhichaolove/AndroidBootReplace/asset"
+	//asset "github.com/zhangzhichaolove/AndroidBootReplace/type"
+	"github.com/zhangzhichaolove/AndroidBootReplace/asset"
 	"io"
 	"net/http"
 	"os"
@@ -131,28 +130,4 @@ func execRealTimeCommand(cmd string) error {
 	err = c.Start()
 	wg.Wait()
 	return err
-}
-
-func deCompress() {
-	zipFile, err := zip.OpenReader("os.zip")
-	if err != nil {
-		fmt.Println("文件解压失败：", err.Error())
-		return
-	}
-	defer zipFile.Close()
-	for _, innerFile := range zipFile.File {
-		info := innerFile.FileInfo()
-		if info.IsDir() {
-			continue
-		}
-		if info.Name() == "boot.img" {
-			srcFile, _ := innerFile.Open()
-			newFile, _ := os.Create(innerFile.Name)
-			io.Copy(newFile, srcFile)
-			newFile.Close()
-			srcFile.Close()
-			fmt.Println("文件解压完成：", innerFile.Name)
-			return
-		}
-	}
 }
