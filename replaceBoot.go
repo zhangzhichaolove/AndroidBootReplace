@@ -31,6 +31,11 @@ func main() {
 	} else {
 		fmt.Println("默认会将同级目录下new.img替换到手机，你也可以手动指定该镜像名称，例如：./replaceBoot magisk_patched.img")
 	}
+	_, e := os.Stat(imgName)
+	if e != nil {
+		fmt.Println("镜像文件不存在，刷机终止。")
+		return
+	}
 	isConnect := make(chan bool)
 	go func() {
 		http.Handle("/", http.FileServer(asset.AssetFile()))
