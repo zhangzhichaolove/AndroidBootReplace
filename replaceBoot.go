@@ -54,7 +54,7 @@ func main() {
 	}()
 	execRealTimeCommand("tool/fastboot --version")
 	execCommand("tool/fastboot wait-for-device", isConnect)
-	execRealTimeCommand(fmt.Sprintf("tool/fastboot flash boot %s", imgName))
+	execRealTimeCommand(fmt.Sprintf("tool/fastboot flash init_boot %s", imgName))
 	execRealTimeCommand("tool/fastboot reboot")
 	//execRealTimeCommand("ping www.baidu.com")
 }
