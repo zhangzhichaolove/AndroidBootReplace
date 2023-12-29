@@ -121,10 +121,12 @@ func execRealTimeCommand(cmd string) error {
 	//c := exec.Command("cmd", "/C", cmd) 	// windows
 	c := exec.Command("bash", "-c", cmd) // mac or linux
 	stdout, err := c.StdoutPipe()
+	defer stdout.Close()
 	if err != nil {
 		return err
 	}
 	stderr, err := c.StderrPipe()
+	defer stderr.Close()
 	if err != nil {
 		return err
 	}
